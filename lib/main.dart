@@ -1,21 +1,13 @@
-import 'package:colosseum/trex/logic/Game.dart';
-import 'package:colosseum/trex/trexgame.dart';
-import 'package:flame/flame.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui' as ui;
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.landscapeRight]);
   SystemChrome.setEnabledSystemUIOverlays([]);
-  Flame.audio.disableLog();
-  List<ui.Image> image = await Flame.images.loadAll(["sprite.png"]);
-  TRexGame tRexGame = TRexGame(spriteImage: image[0]);
 
-  runApp(MyApp(tRexGame: tRexGame,));
+  runApp(MyApp());
 
 //  Flame.util.
 //  Flame.util.addGestureRecognizer(new TapGestureRecognizer()
@@ -24,19 +16,16 @@ Future<void> main() async {
 
 
 class MyApp extends StatefulWidget {
-  MyApp({Key key, @required this.tRexGame}) : super(key: key);
-  final TRexGame tRexGame;
+  MyApp({Key key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState(tRexGame: tRexGame);
+  _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  final TRexGame tRexGame;
   FirebaseVision _vision;
   double range;
 
-  _MyAppState({this.tRexGame});
 
   @override
   void initState() {
@@ -61,7 +50,7 @@ class _MyAppState extends State<MyApp> {
               dist_in_pix = (dist_in_pix > 600) ? 600 : dist_in_pix;
               dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
               range = 1.0 - (dist_in_pix - 250) / (600 - 250);
-              tRexGame.onValueUpdate(range);
+              // tRexGame.onValueUpdate(range);
             });
           }
         });
@@ -82,7 +71,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return RotatedBox(
       quarterTurns: 2,
-      child: GameWrapper(tRexGame),
+      child: Container(),
     );
   }
 }
