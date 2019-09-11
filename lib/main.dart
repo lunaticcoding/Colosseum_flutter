@@ -1,27 +1,17 @@
-import 'package:colosseum/trex/logic/Game.dart';
-import 'package:colosseum/trex/trexgame.dart';
-import 'package:flame/flame.dart';
-import 'package:flutter/gestures.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui' as ui;
+import 'package:webview_flutter/webview_flutter.dart';
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.landscapeRight]);
   SystemChrome.setEnabledSystemUIOverlays([]);
-  Flame.audio.disableLog();
-  List<ui.Image> image = await Flame.images.loadAll(["sprite.png"]);
-  TRexGame tRexGame = TRexGame(spriteImage: image[0]);
 
-  runApp(MyApp(tRexGame: tRexGame,));
-
-//  Flame.util.
-//  Flame.util.addGestureRecognizer(new TapGestureRecognizer()
-//    ..onTapDown = (TapDownDetails evt) => tRexGame.onTap());
+  runApp(MyApp());
 }
-
 
 class MyApp extends StatefulWidget {
   MyApp({Key key}) : super(key: key);
@@ -32,8 +22,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   FirebaseVision _vision;
+  WebViewController _webViewController;
+  String filePath = 'assets/test.html';
   double range;
-
 
   @override
   void initState() {
@@ -58,7 +49,10 @@ class _MyAppState extends State<MyApp> {
               dist_in_pix = (dist_in_pix > 600) ? 600 : dist_in_pix;
               dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
               range = 1.0 - (dist_in_pix - 250) / (600 - 250);
-              // tRexGame.onValueUpdate(range);
+
+              print(range);
+              _webViewController.evaluateJavascript('display_test($range)');
+
             });
           }
         });
@@ -67,19 +61,33 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void dispose() {
-    _vision.dispose().then((_) {
-      // close all detectors
-    });
-
-    super.dispose();
+  void _loadHtmlFromAssets() async {
+    String fileHtmlContents = await rootBundle.loadString(filePath);
+    _webViewController.loadUrl(Uri.dataFromString(fileHtmlContents,
+            mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+        .toString());
   }
 
   @override
   Widget build(BuildContext context) {
     return RotatedBox(
       quarterTurns: 2,
-      child: Container(),
+      child: WebView(
+        initialUrl: '',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController webViewController) {
+          _webViewController = webViewController;
+          _loadHtmlFromAssets();
+        },
+      ),
     );
+  }
+
+  void dispose() {
+    _vision.dispose().then((_) {
+      // close all detectors
+    });
+
+    super.dispose();
   }
 }
