@@ -1,13 +1,21 @@
+import 'package:colosseum/trex/logic/Game.dart';
+import 'package:colosseum/trex/trexgame.dart';
+import 'package:flame/flame.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.landscapeRight]);
   SystemChrome.setEnabledSystemUIOverlays([]);
+  Flame.audio.disableLog();
+  List<ui.Image> image = await Flame.images.loadAll(["sprite.png"]);
+  TRexGame tRexGame = TRexGame(spriteImage: image[0]);
 
-  runApp(MyApp());
+  runApp(MyApp(tRexGame: tRexGame,));
 
 //  Flame.util.
 //  Flame.util.addGestureRecognizer(new TapGestureRecognizer()
