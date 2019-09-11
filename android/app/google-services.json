@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "896153111728",
+    "firebase_url": "https://colosseum-16a99.firebaseio.com",
+    "project_id": "colosseum-16a99",
+    "storage_bucket": "colosseum-16a99.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896153111728:android:1b6bce86d76090b7633f75",
+        "android_client_info": {
+          "package_name": "lunaticcoding.colosseum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "896153111728-nvg19abbranvs5ri9l44ks7hfc5f3b8g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4VZT-GF8-B7oJhJ8ZXAMjbxfefqYwZ_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "896153111728-nvg19abbranvs5ri9l44ks7hfc5f3b8g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "896153111728-h61nk84u3318ukhmqaa91j027subp19k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "lunaticcoding.colosseum"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
