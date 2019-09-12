@@ -23,7 +23,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   FirebaseVision _vision;
   WebViewController _webViewController;
-  String filePath = 'assets/test.html';
+  String filePath = 'assets/pong/index.html';
+//  String filePath = 'assets/test.html';
   double range;
 
   @override
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
               range = 1.0 - (dist_in_pix - 250) / (600 - 250);
 
               print(range);
-              _webViewController.evaluateJavascript('display_test($range)');
+              _webViewController.evaluateJavascript('controller($range)');
 
             });
           }
@@ -73,7 +74,8 @@ class _MyAppState extends State<MyApp> {
     return RotatedBox(
       quarterTurns: 2,
       child: WebView(
-        initialUrl: '',
+
+        initialUrl: filePath,
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           _webViewController = webViewController;
