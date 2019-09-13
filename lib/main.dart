@@ -26,8 +26,8 @@ class _MyAppState extends State<MyApp> {
   FirebaseVision _vision;
   WebViewController _webViewController;
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-//  String filePath = 'assets/pong/index.html';
-  String filePath = 'assets/test.html';
+  String filePath = 'assets/pong/index.html';
+//  String filePath = 'assets/test.html';
   double range;
 
   @override
@@ -35,6 +35,19 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     range = 0.0;
     _initializeCamera();
+    _loadJS('pong/p5min');
+    _loadJS('pong/sketch');
+  }
+
+  void _loadJS(String name) async {
+    var givenJS = rootBundle.loadString('assets/$name.js');
+    givenJS.then((String js) {
+      flutterWebviewPlugin.onStateChanged.listen((viewState) async {
+        if (viewState.type == WebViewState.finishLoad) {
+          flutterWebviewPlugin.evalJavascript(js);
+        }
+      });
+    });
   }
 
   void _initializeCamera() async {
@@ -65,6 +78,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+
 //  void _loadHtmlFromAssets() async {
 //    String fileHtmlContents = await rootBundle.loadString(filePath);
 //    _webViewController.loadUrl(Uri.dataFromString(fileHtmlContents,
@@ -82,7 +96,6 @@ class _MyAppState extends State<MyApp> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return WebviewScaffold(
-                //appBar: AppBar(title: Text("Load HTM file in WebView")),
                 withJavascript: true,
                 appCacheEnabled: true,
                 withLocalUrl: true,
