@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   firebase_livestream_ml_vision: ^1.0.1
   webview_flutter: ^0.3.14
+  flutter_webview_plugin: ^0.3.8
 
 dev_dependencies:
   flutter_test:
