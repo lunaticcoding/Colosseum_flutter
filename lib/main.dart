@@ -9,7 +9,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.landscapeRight]);
+      [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
   SystemChrome.setEnabledSystemUIOverlays([]);
 
   runApp(MyApp());
@@ -89,41 +89,28 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: RotatedBox(
-        quarterTurns: 2,
-        child: FutureBuilder<String>(
-          future: _loadLocalHTML(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return WebviewScaffold(
-                withJavascript: true,
-                appCacheEnabled: true,
-                withLocalUrl: true,
-                url: new Uri.dataFromString(snapshot.data, mimeType: 'text/html')
-                    .toString(),
-              );
-            } else if (snapshot.hasError) {
-              return Scaffold(
-                body: Center(
-                  child: Text("${snapshot.error}"),
-                ),
-              );
-            }
-            return Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+      home: FutureBuilder<String>(
+        future: _loadLocalHTML(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return WebviewScaffold(
+              withJavascript: true,
+              appCacheEnabled: true,
+              withLocalUrl: true,
+              url: new Uri.dataFromString(snapshot.data, mimeType: 'text/html')
+                  .toString(),
             );
-          },
-        ),
-
-//      WebView(
-//
-//        initialUrl: filePath,
-//        javascriptMode: JavascriptMode.unrestricted,
-//        onWebViewCreated: (WebViewController webViewController) {
-//          _webViewController = webViewController;
-//          _loadHtmlFromAssets();
-//        },
-//      ),
+          } else if (snapshot.hasError) {
+            return Scaffold(
+              body: Center(
+                child: Text("${snapshot.error}"),
+              ),
+            );
+          }
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        },
       ),
     );
   }
