@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:colosseum/LoadLocalWebview.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+      [DeviceOrientation.landscapeRight]);
   SystemChrome.setEnabledSystemUIOverlays([]);
 
   runApp(MyApp());
@@ -63,13 +62,12 @@ class _MyAppState extends State<MyApp> {
             setState(() {
               double dist_in_pix = faces_data[0].boundingBox.right -
                   faces_data[0].boundingBox.left;
-              dist_in_pix = (dist_in_pix > 600) ? 600 : dist_in_pix;
+              dist_in_pix = (dist_in_pix > 550) ? 550 : dist_in_pix;
               dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
-              range = 1.0 - (dist_in_pix - 250) / (600 - 250);
+              range = 1.0 - (dist_in_pix - 250) / (550 - 250);
 
               print(range);
               flutterWebviewPlugin.evalJavascript('controller($range)');
-              //_webViewController.evaluateJavascript('controller($range)');
             });
           }
         });
@@ -77,14 +75,6 @@ class _MyAppState extends State<MyApp> {
       setState(() {});
     });
   }
-
-
-//  void _loadHtmlFromAssets() async {
-//    String fileHtmlContents = await rootBundle.loadString(filePath);
-//    _webViewController.loadUrl(Uri.dataFromString(fileHtmlContents,
-//            mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-//        .toString());
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +107,7 @@ class _MyAppState extends State<MyApp> {
 
 
 Future<String> _loadLocalHTML() async {
-  return await rootBundle.loadString('assets/pong/index.html');
+  return await rootBundle.loadString(filePath);
 }
 
   void dispose() {
