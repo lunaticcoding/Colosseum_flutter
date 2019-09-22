@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:camera/camera.dart';
+
+List<CameraDescription> cameras;
 
 Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.landscapeRight]);
   SystemChrome.setEnabledSystemUIOverlays([]);
+  cameras = await availableCameras();
 
   runApp(MyApp());
 }
@@ -22,8 +25,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  CameraController controller;
   FirebaseVision _vision;
-  WebViewController _webViewController;
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
   String filePath = 'assets/pong/index.html';
 //  String filePath = 'assets/test.html';
@@ -32,6 +35,19 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+      controller.startImageStream((image) {
+        print(image);
+
+      });
+    });
+
+
     range = 0.0;
     _initializeCamera();
     _loadJS('pong/p5min');
@@ -51,7 +67,7 @@ class _MyAppState extends State<MyApp> {
 
   void _initializeCamera() async {
     List<FirebaseCameraDescription> cameras = await camerasAvailable();
-    _vision = FirebaseVision(cameras[1], ResolutionSetting.high);
+    _vision = FirebaseVision(cameras[1], ResolutionSetting.medium);
     _vision.initialize().then((_) {
       if (!mounted) {
         return;
@@ -114,6 +130,8 @@ Future<String> _loadLocalHTML() async {
     _vision.dispose().then((_) {
       // close all detectors
     });
+    controller?.dispose();
+
 
     super.dispose();
   }
