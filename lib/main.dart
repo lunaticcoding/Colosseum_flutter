@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
+//import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:camera/camera.dart';
@@ -9,10 +11,16 @@ import 'package:camera/camera.dart';
 List<CameraDescription> cameras;
 
 Future<void> main() async {
-  await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.landscapeRight]);
-  SystemChrome.setEnabledSystemUIOverlays([]);
-  cameras = await availableCameras();
+//  await SystemChrome.setPreferredOrientations(
+//      [DeviceOrientation.landscapeRight]);
+//  SystemChrome.setEnabledSystemUIOverlays([]);
+
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    //logError(e.code, e.description);
+  }
 
   runApp(MyApp());
 }
@@ -26,7 +34,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   CameraController controller;
-  FirebaseVision _vision;
+  //FirebaseVision _vision;
+  FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
   String filePath = 'assets/pong/index.html';
 //  String filePath = 'assets/test.html';
@@ -35,23 +44,59 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller = CameraController(cameras[1], ResolutionPreset.high);
     controller.initialize().then((_) {
       if (!mounted) {
         return;
       }
       setState(() {});
-      controller.startImageStream((image) {
-        print(image);
-
+      controller.startImageStream((CameraImage availableImage) async {
+        print(availableImage);
+        print("DUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+//        final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
+//            rawFormat: availableImage.format.raw,
+//            size: Size(
+//                availableImage.width.toDouble(), availableImage.height.toDouble()),
+//            planeData: availableImage.planes
+//                .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
+//                bytesPerRow: currentPlane.bytesPerRow,
+//                height: currentPlane.height,
+//                width: currentPlane.width))
+//                .toList(),
+//            rotation: ImageRotation.rotation90);
+//
+//        final FirebaseVisionImage visionImage =
+//        FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, null);
+//        print(visionImage.toString());
+//
+//        final List<Face> faces = await faceDetector.processImage(visionImage);
+//        print(faces.length);
       });
     });
-
-
     range = 0.0;
-    _initializeCamera();
+//    _initializeCamera();
     _loadJS('pong/p5min');
     _loadJS('pong/sketch');
+  }
+
+  void _triggerMlVision(CameraImage availableImage) async {
+    final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
+        rawFormat: availableImage.format.raw,
+        size: Size(
+            availableImage.width.toDouble(), availableImage.height.toDouble()),
+        planeData: availableImage.planes
+            .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
+                bytesPerRow: currentPlane.bytesPerRow,
+                height: currentPlane.height,
+                width: currentPlane.width))
+            .toList(),
+        rotation: ImageRotation.rotation90);
+
+    final FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);
+
+    final List<Face> faces = await faceDetector.processImage(visionImage);
+    print(faces.length);
   }
 
   void _loadJS(String name) async {
@@ -65,31 +110,49 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _initializeCamera() async {
-    List<FirebaseCameraDescription> cameras = await camerasAvailable();
-    _vision = FirebaseVision(cameras[1], ResolutionSetting.medium);
-    _vision.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      _vision.addFaceDetector().then((faces) {
-        faces.asBroadcastStream().listen((faces_data) {
-          if (faces_data.length != 0) {
-            setState(() {
-              double dist_in_pix = faces_data[0].boundingBox.right -
-                  faces_data[0].boundingBox.left;
-              dist_in_pix = (dist_in_pix > 550) ? 550 : dist_in_pix;
-              dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
-              range = 1.0 - (dist_in_pix - 250) / (550 - 250);
+//  void _initializeCamera() async {
+//    List<FirebaseCameraDescription> cameras = await camerasAvailable();
+//    _vision = FirebaseVision(cameras[1], ResolutionSetting.medium);
+//    _vision.initialize().then((_) {
+//      if (!mounted) {
+//        return;
+//      }
+//      _vision.addFaceDetector().then((faces) {
+//        faces.asBroadcastStream().listen((faces_data) {
+//          if (faces_data.length != 0) {
+//            setState(() {
+//              double dist_in_pix = faces_data[0].boundingBox.right -
+//                  faces_data[0].boundingBox.left;
+//              dist_in_pix = (dist_in_pix > 550) ? 550 : dist_in_pix;
+//              dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
+//              range = 1.0 - (dist_in_pix - 250) / (550 - 250);
+//
+//              print(range);
+//              flutterWebviewPlugin.evalJavascript('controller($range)');
+//            });
+//          }
+//        });
+//      });
+//      setState(() {});
+//    });
+//  }
 
-              print(range);
-              flutterWebviewPlugin.evalJavascript('controller($range)');
-            });
-          }
-        });
-      });
-      setState(() {});
-    });
+  Widget _cameraPreviewWidget() {
+    if (controller == null || !controller.value.isInitialized) {
+      return const Text(
+        'Tap a camera',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24.0,
+          fontWeight: FontWeight.w900,
+        ),
+      );
+    } else {
+      return AspectRatio(
+        aspectRatio: controller.value.aspectRatio,
+        child: CameraPreview(controller),
+      );
+    }
   }
 
   @override
@@ -118,20 +181,20 @@ class _MyAppState extends State<MyApp> {
           );
         },
       ),
+//    home: _cameraPreviewWidget(),
     );
   }
 
-
-Future<String> _loadLocalHTML() async {
-  return await rootBundle.loadString(filePath);
-}
+  Future<String> _loadLocalHTML() async {
+    return await rootBundle.loadString(filePath);
+  }
 
   void dispose() {
-    _vision.dispose().then((_) {
-      // close all detectors
-    });
+//    _vision.dispose().then((_) {
+//      // close all detectors
+//    });
     controller?.dispose();
-
+    faceDetector.close();
 
     super.dispose();
   }
