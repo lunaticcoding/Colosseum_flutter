@@ -1,3 +1,4 @@
+import 'package:colosseum/camera_custom.dart';
 import 'package:colosseum/util.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/foundation.dart';
@@ -5,20 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:camera/camera.dart';
+import 'camera_custom.dart';
 
-List<CameraDescription> cameras;
+dynamic camera = CameraWrapper();
 
 Future<void> main() async {
 //  await SystemChrome.setPreferredOrientations(
 //      [DeviceOrientation.landscapeRight]);
 //  SystemChrome.setEnabledSystemUIOverlays([]);
 
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    cameras = await availableCameras();
-  } on CameraException catch (e) {
-    //logError(e.code, e.description);
-  }
+  camera.initCamera();
 
   runApp(MyApp());
 }
@@ -31,62 +28,35 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  CameraController _camera;
-  CameraLensDirection _direction = CameraLensDirection.front;
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-  String filePath = 'assets/pong/index.html';
-//  String filePath = 'assets/test.html';
+//  String filePath = 'assets/pong/index.html';
+  String filePath = 'assets/test.html';
   double range;
-  bool ready_for_next_image = true;
+
 
   @override
   void initState() {
     super.initState();
     range = 0.0;
-    _initializeCamera();
-    _loadJS('pong/p5min');
-    _loadJS('pong/sketch');
+    camera.initializeCamera(
+      faceDetector.processImage,
+        onFaceDetected
+    );
+//    _loadJS('pong/p5min');
+//    _loadJS('pong/sketch');
   }
 
-  void _initializeCamera() async {
-    CameraDescription description = await getCamera(_direction);
-    ImageRotation rotation = rotationIntToImageRotation(
-      description.sensorOrientation,
-    );
-
-    _camera = CameraController(
-      description,
-      ResolutionPreset.medium,
-    );
-    await _camera.initialize();
-
-    _camera.startImageStream((CameraImage image) {
-      if (!ready_for_next_image) {
-        return;
-      }
-      setState(() {
-        ready_for_next_image = false;
-      });
-
-      detect(image, faceDetector.processImage, rotation).then(
-        (dynamic faces) {
-          if (faces.length != 0) {
-            double dist_in_pix =
-                faces[0].boundingBox.right - faces[0].boundingBox.left;
-            dist_in_pix = (dist_in_pix > 550) ? 550 : dist_in_pix;
-            dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
-            setState(() {
-              range = 1.0 - (dist_in_pix - 250) / (550 - 250);
-            });
-            flutterWebviewPlugin.evalJavascript('controller($range)');
-          } 
-          ready_for_next_image = true;
-        },
-      );
-    });
+  void onFaceDetected(dynamic faces) {
+    if (faces.length != 0) {
+      double dist_in_pix =
+          faces[0].boundingBox.right - faces[0].boundingBox.left;
+      dist_in_pix = (dist_in_pix > 550) ? 550 : dist_in_pix;
+      dist_in_pix = (dist_in_pix < 250) ? 250 : dist_in_pix;
+      double range = 1.0 - (dist_in_pix - 250) / (550 - 250);
+      flutterWebviewPlugin.evalJavascript('controller($range)');
+    }
   }
-
   void _loadJS(String name) async {
     var givenJS = rootBundle.loadString('assets/$name.js');
     givenJS.then((String js) {
@@ -97,7 +67,6 @@ class _MyAppState extends State<MyApp> {
       });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +102,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void dispose() {
-    _camera?.dispose();
+    camera.dispose();
     faceDetector.close();
 
     super.dispose();
