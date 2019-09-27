@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-//import 'package:firebase_livestream_ml_vision/firebase_livestream_ml_vision.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:camera/camera.dart';
@@ -37,22 +36,29 @@ class _MyAppState extends State<MyApp> {
   //FirebaseVision _vision;
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-  String filePath = 'assets/pong/index.html';
-//  String filePath = 'assets/test.html';
+//  String filePath = 'assets/pong/index.html';
+  String filePath = 'assets/test.html';
   double range;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(cameras[1], ResolutionPreset.high);
-    controller.initialize().then((_) {
+    range = 0;
+    controller = CameraController(cameras[1], ResolutionPreset.medium);
+    controller.initialize().then((_) async{
       if (!mounted) {
         return;
       }
       setState(() {});
       controller.startImageStream((CameraImage availableImage) async {
-        print(availableImage);
+//        print(availableImage);
         print("DUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+        setState(() {
+          range += 1;
+        });
+//        if (flutterWebviewPlugin != null) {
+//          flutterWebviewPlugin.evalJavascript('controller($range)');
+//        }
 //        final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
 //            rawFormat: availableImage.format.raw,
 //            size: Size(
@@ -73,10 +79,10 @@ class _MyAppState extends State<MyApp> {
 //        print(faces.length);
       });
     });
-    range = 0.0;
+//    range = 0.0;
 //    _initializeCamera();
-    _loadJS('pong/p5min');
-    _loadJS('pong/sketch');
+//    _loadJS('pong/p5min');
+//    _loadJS('pong/sketch');
   }
 
   void _triggerMlVision(CameraImage availableImage) async {
@@ -158,30 +164,30 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: FutureBuilder<String>(
-        future: _loadLocalHTML(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return WebviewScaffold(
-              withJavascript: true,
-              appCacheEnabled: true,
-              withLocalUrl: true,
-              url: new Uri.dataFromString(snapshot.data, mimeType: 'text/html')
-                  .toString(),
-            );
-          } else if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Text("${snapshot.error}"),
-              ),
-            );
-          }
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        },
-      ),
-//    home: _cameraPreviewWidget(),
+//      home: FutureBuilder<String>(
+//        future: _loadLocalHTML(),
+//        builder: (context, snapshot) {
+//          if (snapshot.hasData) {
+//            return WebviewScaffold(
+//              withJavascript: true,
+//              appCacheEnabled: true,
+//              withLocalUrl: true,
+//              url: new Uri.dataFromString(snapshot.data, mimeType: 'text/html')
+//                  .toString(),
+//            );
+//          } else if (snapshot.hasError) {
+//            return Scaffold(
+//              body: Center(
+//                child: Text("${snapshot.error}"),
+//              ),
+//            );
+//          }
+//          return Scaffold(
+//            body: Center(child: CircularProgressIndicator()),
+//          );
+//        },
+//      ),
+    home: Text('$range'),
     );
   }
 
