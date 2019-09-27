@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:colosseum/util.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -32,78 +34,99 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  CameraController controller;
+  CameraController _camera;
+  bool _isDetecting = false;
+  CameraLensDirection _direction = CameraLensDirection.front;
   //FirebaseVision _vision;
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
 //  String filePath = 'assets/pong/index.html';
   String filePath = 'assets/test.html';
   double range;
+  String demo = "no";
+  bool ready_for_next_image = true;
 
   @override
   void initState() {
     super.initState();
     range = 0;
-    controller = CameraController(cameras[1], ResolutionPreset.medium);
-    controller.initialize().then((_) async{
-      if (!mounted) {
+    _initializeCamera();
+//    _camera = CameraController(cameras[1], ResolutionPreset.medium);
+//    _camera.initialize().then((_) async {
+//      if (!mounted) {
+//        return;
+//      }
+//      setState(() {});
+//      _camera.startImageStream((CameraImage availableImage) async {
+////        print(availableImage);
+//        print("DUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+////        if (flutterWebviewPlugin != null) {
+////          flutterWebviewPlugin.evalJavascript('controller($range)');
+////        }
+////        final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
+////            rawFormat: availableImage.format.raw,
+////            size: Size(
+////                availableImage.width.toDouble(), availableImage.height.toDouble()),
+////            planeData: availableImage.planes
+////                .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
+////                bytesPerRow: currentPlane.bytesPerRow,
+////                height: currentPlane.height,
+////                width: currentPlane.width))
+////                .toList(),
+////            rotation: ImageRotation.rotation90);
+////
+////        final FirebaseVisionImage visionImage =
+////        FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, null);
+//        print(availableImage.format);
+//
+////        final List<Face> faces = await faceDetector.processImage(visionImage);
+////        setState(() {
+////          range = faces.length.toDouble();
+////        });
+//      });
+//    });
+////    range = 0.0;
+////    _initializeCamera();
+////    _loadJS('pong/p5min');
+////    _loadJS('pong/sketch');
+  }
+
+  void _initializeCamera() async {
+    CameraDescription description = await getCamera(_direction);
+    ImageRotation rotation = rotationIntToImageRotation(
+      description.sensorOrientation,
+    );
+
+    _camera = CameraController(
+      description,
+      defaultTargetPlatform == TargetPlatform.iOS
+          ? ResolutionPreset.low
+          : ResolutionPreset.medium,
+    );
+    await _camera.initialize();
+
+    _camera.startImageStream((CameraImage image) {
+      if(!ready_for_next_image){
         return;
       }
-      setState(() {});
-      controller.startImageStream((CameraImage availableImage) async {
-//        print(availableImage);
-        print("DUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
-        setState(() {
-          range += 1;
-        });
-//        if (flutterWebviewPlugin != null) {
-//          flutterWebviewPlugin.evalJavascript('controller($range)');
-//        }
-//        final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
-//            rawFormat: availableImage.format.raw,
-//            size: Size(
-//                availableImage.width.toDouble(), availableImage.height.toDouble()),
-//            planeData: availableImage.planes
-//                .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-//                bytesPerRow: currentPlane.bytesPerRow,
-//                height: currentPlane.height,
-//                width: currentPlane.width))
-//                .toList(),
-//            rotation: ImageRotation.rotation90);
-//
-//        final FirebaseVisionImage visionImage =
-//        FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, null);
-//        print(visionImage.toString());
-//
-//        final List<Face> faces = await faceDetector.processImage(visionImage);
-//        print(faces.length);
+      setState(() {
+        ready_for_next_image = false;
       });
+
+      detect(image, faceDetector.processImage, rotation).then(
+            (dynamic result) {
+          setState(() {
+            demo = result.toString();
+            ready_for_next_image = true;
+          });
+
+
+        },
+      );
     });
-//    range = 0.0;
-//    _initializeCamera();
-//    _loadJS('pong/p5min');
-//    _loadJS('pong/sketch');
   }
 
-  void _triggerMlVision(CameraImage availableImage) async {
-    final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
-        rawFormat: availableImage.format.raw,
-        size: Size(
-            availableImage.width.toDouble(), availableImage.height.toDouble()),
-        planeData: availableImage.planes
-            .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-                bytesPerRow: currentPlane.bytesPerRow,
-                height: currentPlane.height,
-                width: currentPlane.width))
-            .toList(),
-        rotation: ImageRotation.rotation90);
 
-    final FirebaseVisionImage visionImage =
-        FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);
-
-    final List<Face> faces = await faceDetector.processImage(visionImage);
-    print(faces.length);
-  }
 
   void _loadJS(String name) async {
     var givenJS = rootBundle.loadString('assets/$name.js');
@@ -144,7 +167,7 @@ class _MyAppState extends State<MyApp> {
 //  }
 
   Widget _cameraPreviewWidget() {
-    if (controller == null || !controller.value.isInitialized) {
+    if (_camera == null || !_camera.value.isInitialized) {
       return const Text(
         'Tap a camera',
         style: TextStyle(
@@ -155,8 +178,8 @@ class _MyAppState extends State<MyApp> {
       );
     } else {
       return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: CameraPreview(controller),
+        aspectRatio: _camera.value.aspectRatio,
+        child: CameraPreview(_camera),
       );
     }
   }
@@ -187,7 +210,7 @@ class _MyAppState extends State<MyApp> {
 //          );
 //        },
 //      ),
-    home: Text('$range'),
+      home: Text('$demo'),
     );
   }
 
@@ -199,7 +222,7 @@ class _MyAppState extends State<MyApp> {
 //    _vision.dispose().then((_) {
 //      // close all detectors
 //    });
-    controller?.dispose();
+    _camera?.dispose();
     faceDetector.close();
 
     super.dispose();
