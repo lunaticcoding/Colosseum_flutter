@@ -1,17 +1,17 @@
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
-import 'package:colosseum/util.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
+typedef HandleDetection = Future<dynamic> Function(FirebaseVisionImage image);
 List<CameraDescription> cameras;
 
 class CameraWrapper {
   CameraController _camera;
   CameraLensDirection _direction = CameraLensDirection.front;
-  bool ready_for_next_image = true;
+  bool isDetectingFace = true;
 
   void initCamera() async {
     try {
@@ -39,16 +39,16 @@ class CameraWrapper {
     await _camera.initialize();
 
     _camera.startImageStream((CameraImage image) {
-      if (!ready_for_next_image) {
+      if (!isDetectingFace) {
         return;
       }
 
-      ready_for_next_image = false;
+      isDetectingFace = false;
 
       _detect(image, runFaceDetection, rotation).then(
             (dynamic faces) {
               onFaceDetected(faces);
-          ready_for_next_image = true;
+          isDetectingFace = true;
         },
       );
     });
@@ -70,7 +70,7 @@ class CameraWrapper {
     return handleDetection(
       FirebaseVisionImage.fromBytes(
         _concatenatePlanes(image.planes),
-        buildMetaData(image, rotation),
+        _buildMetaData(image, rotation),
       ),
     );
   }
@@ -92,6 +92,25 @@ class CameraWrapper {
     final WriteBuffer allBytes = WriteBuffer();
     planes.forEach((Plane plane) => allBytes.putUint8List(plane.bytes));
     return allBytes.done().buffer.asUint8List();
+  }
+  FirebaseVisionImageMetadata _buildMetaData(
+      CameraImage image,
+      ImageRotation rotation,
+      ) {
+    return FirebaseVisionImageMetadata(
+      rawFormat: image.format.raw,
+      size: Size(image.width.toDouble(), image.height.toDouble()),
+      rotation: rotation,
+      planeData: image.planes.map(
+            (Plane plane) {
+          return FirebaseVisionImagePlaneMetadata(
+            bytesPerRow: plane.bytesPerRow,
+            height: plane.height,
+            width: plane.width,
+          );
+        },
+      ).toList(),
+    );
   }
 
 }

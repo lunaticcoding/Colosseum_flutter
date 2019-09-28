@@ -1,30 +1,31 @@
-import 'package:colosseum/camera_custom.dart';
-import 'package:colosseum/webview_custom.dart';
+import 'package:colosseum/controller/components/camera_wrapper.dart';
+import 'package:colosseum/controller/components/local_file_webview.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'camera_custom.dart';
+import 'components/camera_wrapper.dart';
 
 dynamic camera = CameraWrapper();
 
 Future<void> main() async {
-//  await SystemChrome.setPreferredOrientations(
-//      [DeviceOrientation.landscapeRight]);
-//  SystemChrome.setEnabledSystemUIOverlays([]);
+  await SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.landscapeLeft]);
+  SystemChrome.setEnabledSystemUIOverlays([]);
 
   camera.initCamera();
-  runApp(MyApp());
+  runApp(PushupController());
 }
 
-class MyApp extends StatefulWidget {
-  MyApp({Key key}) : super(key: key);
+class PushupController extends StatefulWidget {
+  PushupController({Key key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _PushupControllerState createState() => _PushupControllerState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _PushupControllerState extends State<PushupController> {
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
 
@@ -68,7 +69,6 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     camera.dispose();
     faceDetector.close();
-
     super.dispose();
   }
 }
