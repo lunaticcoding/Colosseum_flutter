@@ -23,9 +23,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  firebase_livestream_ml_vision: ^1.0.1
-  webview_flutter: ^0.3.14
   flutter_webview_plugin: ^0.3.8
+  camera: 0.5.4+2
+  firebase_ml_vision: 0.9.2+1
+  path: ^1.6.4
 
 dev_dependencies:
   flutter_test:
