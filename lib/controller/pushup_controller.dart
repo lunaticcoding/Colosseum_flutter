@@ -9,16 +9,9 @@ import 'components/camera_wrapper.dart';
 
 dynamic camera = CameraWrapper();
 
-Future<void> main() async {
-  await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.landscapeLeft]);
-  SystemChrome.setEnabledSystemUIOverlays([]);
-
-  camera.initCamera();
-  runApp(PushupController());
-}
-
 class PushupController extends StatefulWidget {
+  static String id = 'PushupController';
+
   PushupController({Key key}) : super(key: key);
 
   @override
@@ -39,8 +32,13 @@ class _PushupControllerState extends State<PushupController> {
   @override
   void initState() {
     super.initState();
-    range = 0.0;
-    camera.initializeCamera(faceDetector.processImage, onFaceDetected);
+    // TODO make make rotation depend on input + rotate camera too
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft]);
+    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+      range = 0.0;
+      camera.initializeCamera(faceDetector.processImage, onFaceDetected);
+    });
   }
 
   void onFaceDetected(dynamic faces) {

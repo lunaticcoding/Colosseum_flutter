@@ -13,20 +13,18 @@ class CameraWrapper {
   CameraLensDirection _direction = CameraLensDirection.front;
   bool isDetectingFace = true;
 
-  void initCamera() async {
+  void dispose() {
+    _camera?.dispose();
+  }
+
+  void initializeCamera(Function runFaceDetection, Function onFaceDetected) async {
     try {
       WidgetsFlutterBinding.ensureInitialized();
       cameras = await availableCameras();
     } on CameraException catch (e) {
       //logError(e.code, e.description);
     }
-  }
 
-  void dispose() {
-    _camera?.dispose();
-  }
-
-  void initializeCamera(Function runFaceDetection, Function onFaceDetected) async {
     CameraDescription description = await _getCamera(_direction);
     ImageRotation rotation = _rotationIntToImageRotation(
       description.sensorOrientation,
