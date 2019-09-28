@@ -1,11 +1,9 @@
 import 'package:colosseum/camera_custom.dart';
-import 'package:colosseum/util.dart';
+import 'package:colosseum/webview_custom.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:camera/camera.dart';
 import 'camera_custom.dart';
 
 dynamic camera = CameraWrapper();
@@ -16,7 +14,6 @@ Future<void> main() async {
 //  SystemChrome.setEnabledSystemUIOverlays([]);
 
   camera.initCamera();
-
   runApp(MyApp());
 }
 
@@ -30,21 +27,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-//  String filePath = 'assets/pong/index.html';
-  String filePath = 'assets/test.html';
-  double range;
 
+  String path = 'assets/pong/';
+  String htmlFile = 'index.html';
+  List<String> jsFiles = ['p5min.js', 'sketch.js'];
+
+//  String filePath = 'assets/test.html';
+  double range;
 
   @override
   void initState() {
     super.initState();
     range = 0.0;
-    camera.initializeCamera(
-      faceDetector.processImage,
-        onFaceDetected
-    );
-//    _loadJS('pong/p5min');
-//    _loadJS('pong/sketch');
+    camera.initializeCamera(faceDetector.processImage, onFaceDetected);
   }
 
   void onFaceDetected(dynamic faces) {
@@ -57,48 +52,17 @@ class _MyAppState extends State<MyApp> {
       flutterWebviewPlugin.evalJavascript('controller($range)');
     }
   }
-  void _loadJS(String name) async {
-    var givenJS = rootBundle.loadString('assets/$name.js');
-    givenJS.then((String js) {
-      flutterWebviewPlugin.onStateChanged.listen((viewState) async {
-        if (viewState.type == WebViewState.finishLoad) {
-          flutterWebviewPlugin.evalJavascript(js);
-        }
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: FutureBuilder<String>(
-        future: _loadLocalHTML(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return WebviewScaffold(
-              withJavascript: true,
-              appCacheEnabled: true,
-              withLocalUrl: true,
-              url: new Uri.dataFromString(snapshot.data, mimeType: 'text/html')
-                  .toString(),
-            );
-          } else if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Text("${snapshot.error}"),
-              ),
-            );
-          }
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        },
+      home: LocalFileWebview(
+        flutterWebviewPlugin: flutterWebviewPlugin,
+        path: path,
+        htmlFile: htmlFile,
+        jsFiles: jsFiles,
       ),
     );
-  }
-
-  Future<String> _loadLocalHTML() async {
-    return await rootBundle.loadString(filePath);
   }
 
   void dispose() {
