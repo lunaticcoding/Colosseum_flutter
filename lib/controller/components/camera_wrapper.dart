@@ -26,9 +26,7 @@ class CameraWrapper {
     }
 
     CameraDescription description = await _getCamera(_direction);
-    ImageRotation rotation = _rotationIntToImageRotation(
-      description.sensorOrientation,
-    );
+    ImageRotation rotation = ImageRotation.rotation0;
 
     _camera = CameraController(
       description,
@@ -73,19 +71,6 @@ class CameraWrapper {
     );
   }
 
-  ImageRotation _rotationIntToImageRotation(int rotation) {
-    switch (rotation) {
-      case 0:
-        return ImageRotation.rotation0;
-      case 90:
-        return ImageRotation.rotation90;
-      case 180:
-        return ImageRotation.rotation180;
-      default:
-        assert(rotation == 270);
-        return ImageRotation.rotation270;
-    }
-  }
   Uint8List _concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
     planes.forEach((Plane plane) => allBytes.putUint8List(plane.bytes));
