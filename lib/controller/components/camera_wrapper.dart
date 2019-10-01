@@ -40,7 +40,6 @@ class CameraWrapper {
       }
 
       isDetectingFace = false;
-
       _detect(image, runFaceDetection, rotation).then(
             (dynamic faces) {
               onFaceDetected(faces);

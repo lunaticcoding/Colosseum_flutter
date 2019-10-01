@@ -1,3 +1,4 @@
+import 'package:colosseum/counterScreen.dart';
 import 'package:colosseum/controller/pushup_controller.dart';
 import 'package:colosseum/welcome_screen.dart';
 import 'package:flutter/material.dart';
