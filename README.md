@@ -2,8 +2,9 @@
 
 This app allows you to play your favorite arcade games (space invaders, pacman, ...) while you are exercising.
 
-# Demo
-https://youtu.be/pMobIPhFvGo
+# Demo Video
+[![IMAGE ALT TEST](https://i.ytimg.com/vi/RtFMYsI_upM/hqdefault.jpg)](https://youtu.be/RtFMYsI_upM)
+
 
 # Current status
 
