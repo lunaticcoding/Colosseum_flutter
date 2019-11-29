@@ -1,14 +1,13 @@
 # Colosseum
 
-This app allows you to play your favorite arcade games (space invaders, pacman, ...) while you are exercising.
+This app allows you to play your favourite arcade games (space invaders, pacman, ...) while you are exercising. The finished app will allow the user to do several exercises including, but not limited to push-ups and squats.
 
 # Demo Video
-[![IMAGE ALT TEST](https://i.ytimg.com/vi/RtFMYsI_upM/hqdefault.jpg)](https://youtu.be/RtFMYsI_upM)
-
+[![IMAGE ALT TEST](https://i9.ytimg.com/vi/2aPK5I0f_6I/mqdefault.jpg?time=1575025049710&sqp=CITyg-8F&rs=AOn4CLC3DbboTGni5bma1G8a21ZNhhs4Fg)](https://youtu.be/2aPK5I0f_6I)
 
 # Current status
 
-I am currently working on cleaning the dataset to train a custom MobileNetV2 which will then replace the firebase model that is used in this prototype. This is done in a seperate repository and because we are going to detect the eyes instead of the entire face also not trivial when it comes to finding a good training set. 
+I am currently working on cleaning the dataset to train a custom MobileNetV2 which will then replace the firebase model that is used in this prototype. For several reasons, including the fact that we want to publish this app and consider those models our IP, won't add the custom MobileNet model to this repository. 
 
 ## Getting Started
 
