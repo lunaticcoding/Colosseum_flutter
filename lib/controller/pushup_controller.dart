@@ -36,11 +36,13 @@ class _PushupControllerState extends State<PushupController> {
   @override
   void initState() {
     super.initState();
-    // TODO make make rotation depend on input + rotate camera too
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
-    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-      range = 0.0;
-      camera.initializeCamera(faceDetector.processImage, onFaceDetected);
+    // TODO make make rotation depend on input
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]).then((_) {
+      SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+        range = 0.0;
+        camera.initializeCamera(faceDetector.processImage, onFaceDetected);
+      });
+      setState(() {}); // to force rerender
     });
   }
 
