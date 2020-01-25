@@ -51,6 +51,10 @@ flutter:
     - assets/pong/sketch.js
     - assets/pong/index.html
     - assets/pong/style.css
+    - assets/impossibleGame/p5.min.js
+    - assets/impossibleGame/game.js
+    - assets/impossibleGame/index.html
+    - assets/impossibleGame/obstacle.js
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
