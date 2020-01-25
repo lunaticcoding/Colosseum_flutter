@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'Game.dart';
 import 'components/camera_wrapper.dart';
 
 dynamic camera = CameraWrapper();
@@ -23,28 +24,12 @@ class _PushupControllerState extends State<PushupController> {
   FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
 
-  String path = 'assets/impossibleGame/';
-  String htmlFile = 'index.html';
-  List<String> jsFiles = ['p5.min.js', 'obstacle.js', 'game.js'];
+  Game game;
 
-//  String filePath = 'lib/assets/test.html';
   bool isJumpDone = false;
   bool isGameOver = false;
   double range;
   int counter = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    // TODO make make rotation depend on input
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]).then((_) {
-      SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-        range = 0.0;
-        camera.initializeCamera(faceDetector.processImage, onFaceDetected);
-      });
-      setState(() {}); // to force rerender
-    });
-  }
 
   void onFaceDetected(dynamic faces) {
     flutterWebviewPlugin.evalJavascript('isGameOver();').then((isGameOver) {
@@ -81,14 +66,27 @@ class _PushupControllerState extends State<PushupController> {
 
   @override
   Widget build(BuildContext context) {
+    game = ModalRoute.of(context).settings.arguments;
+    initScreen(game.orientation);
+
     return MaterialApp(
       home: LocalFileWebview(
         flutterWebviewPlugin: flutterWebviewPlugin,
-        path: path,
-        htmlFile: htmlFile,
-        jsFiles: jsFiles,
+        path: game.path,
+        htmlFile: game.htmlFile,
+        jsFiles: game.jsFiles,
       ),
     );
+  }
+
+  void initScreen(DeviceOrientation orientation) {
+    SystemChrome.setPreferredOrientations([orientation]).then((_) {
+      SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+        range = 0.0;
+        camera.initializeCamera(faceDetector.processImage, onFaceDetected);
+      });
+      setState(() {}); // to force rerender
+    });
   }
 
   void dispose() {
