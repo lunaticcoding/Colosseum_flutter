@@ -1,4 +1,4 @@
-# Colosseum
+# Mana
 
 This app allows you to play your favourite arcade games (space invaders, pacman, ...) while you are exercising. The finished app will allow the user to do several exercises including, but not limited to push-ups and squats.
 
