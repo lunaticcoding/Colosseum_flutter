@@ -3,7 +3,7 @@
 This app allows you to play your favourite arcade games (space invaders, pacman, ...) while you are exercising. The finished app will allow the user to do several exercises including, but not limited to push-ups and squats.
 
 # Demo Video
-[![IMAGE ALT TEST](https://i9.ytimg.com/vi/2aPK5I0f_6I/mqdefault.jpg?time=1575025049710&sqp=CITyg-8F&rs=AOn4CLC3DbboTGni5bma1G8a21ZNhhs4Fg)](https://youtu.be/2aPK5I0f_6I)
+[![IMAGE ALT TEST](https://i.ytimg.com/vi/2aPK5I0f_6I/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLD13DlrplxBVDvxRgPDfMZ67UJxlg)](https://youtu.be/2aPK5I0f_6I)
 
 # Current status
 
