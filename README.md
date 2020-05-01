@@ -6,8 +6,7 @@ This app allows you to play your favourite arcade games (space invaders, pacman,
 [![IMAGE ALT TEST](https://i.ytimg.com/vi/2aPK5I0f_6I/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLD13DlrplxBVDvxRgPDfMZ67UJxlg)](https://youtu.be/2aPK5I0f_6I)
 
 # Current status
-
-I am currently working on cleaning the dataset to train a custom MobileNetV2 which will then replace the firebase model that is used in this prototype. For several reasons, including the fact that we want to publish this app and consider those models our IP, won't add the custom MobileNet model to this repository. 
+This repository is stale. I am currently reimplementing this project natively due to performance issues. Also I am working on a custom face detection using various MobileNet Architectures. 
 
 ## Getting Started
 
